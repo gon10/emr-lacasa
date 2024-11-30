@@ -13,11 +13,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  DOCTOR
+  NURSE
+  ADMIN
+  RECEPTIONIST
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
   email         String    @unique
   password      String
+  role          Role      @default(DOCTOR)
+  image         String?   // For avatar
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
