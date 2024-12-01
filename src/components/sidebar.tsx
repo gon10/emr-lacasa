@@ -8,6 +8,7 @@ import {
   Link as LucideLink,
   PillIcon as Pills,
   Users2,
+  FormInput as Form,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -34,6 +35,7 @@ const navigation = [
   { name: "Drug list", href: "/drug-list", icon: Pills },
   { name: "Tasks", href: "/tasks", icon: ClipboardList },
   { name: "STCs", href: "/stcs", icon: LucideLink },
+  { name: "Form Builder", href: "/form-builder", icon: Form },
 ];
 
 export function Sidebar() {
