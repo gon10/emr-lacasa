@@ -14,12 +14,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "./theme-toggle";
+import { useState } from "react";
 
 interface UserNavProps {
   user: any | null;
 }
 
 export function UserNav({ user }: UserNavProps) {
+  const [open, setOpen] = useState(false);
+
   if (!user) {
     return (
       <Button variant="outline" asChild>
@@ -36,7 +39,7 @@ export function UserNav({ user }: UserNavProps) {
       .toUpperCase() || user?.email?.[0].toUpperCase();
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
@@ -66,10 +69,10 @@ export function UserNav({ user }: UserNavProps) {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <div className="flex-1">Theme</div>
-          <ThemeToggle />
-        </DropdownMenuItem>
+        <div className="p-1">
+          <p className="px-2 text-xs font-medium mb-2">Theme</p>
+          <ThemeToggle onThemeChange={() => setOpen(false)} />
+        </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="text-red-600 focus:bg-red-50 focus:text-red-600"

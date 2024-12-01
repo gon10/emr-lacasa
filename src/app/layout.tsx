@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Sidebar } from "@/components/sidebar";
 import { TopBar } from "@/components/top-bar";
 import { LoadingBar } from "@/components/loading-bar";
+import { cn } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,19 +36,26 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body
+        className={cn(
+          "min-h-screen bg-background antialiased",
+          inter.className
+        )}
+      >
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex h-screen flex-col">
-            <LoadingBar />
+          <LoadingBar />
+          <div className="relative flex min-h-screen flex-col">
             <TopBar />
             <div className="flex flex-1 overflow-hidden">
               <Sidebar />
-              <PageWrapper>{children}</PageWrapper>
+              <main className="flex-1">
+                <PageWrapper>{children}</PageWrapper>
+              </main>
             </div>
           </div>
         </ThemeProvider>
