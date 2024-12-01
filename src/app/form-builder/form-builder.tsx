@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
   DndContext,
-  closestCenter,
+  pointerWithin,
   MouseSensor,
   TouchSensor,
   DragOverlay,
@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Droppable } from "@/components/droppable";
 import { FormElement, FormData } from "../../../types/form-builder";
+import { DragOverlayContent } from "@/components/drag-overlay";
 
 export default function FormBuilder() {
   const [formData, setFormData] = useState<FormData>({
@@ -53,8 +54,7 @@ export default function FormBuilder() {
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
-
-    if (over && over.id === "form-area" && active.data.current) {
+    if (over?.id === "form-area" && active?.data?.current) {
       const newElement: FormElement = {
         id: crypto.randomUUID(),
         type: active.data.current.type,
@@ -92,7 +92,7 @@ export default function FormBuilder() {
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={pointerWithin}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       modifiers={[restrictToWindowEdges]}
@@ -104,7 +104,7 @@ export default function FormBuilder() {
         />
         <div className="flex-1 overflow-auto p-6">
           <div className="mx-auto max-w-2xl space-y-4">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center sticky top-0 bg-background z-10 pb-4">
               <h1 className="text-2xl font-bold">Form Creator</h1>
               <Button onClick={() => setShowPreview(true)}>
                 Show form in modal
@@ -126,15 +126,17 @@ export default function FormBuilder() {
               placeholder="Enter form subtitle"
             />
             <Droppable id="form-area">
-              <div className="space-y-4 min-h-[200px] border-2 border-dashed border-gray-300 p-4 rounded-md">
-                {formData.elements.map((element) => (
-                  <FormElementRenderer
-                    key={element.id}
-                    element={element}
-                    onEdit={() => setSelectedElement(element)}
-                    onDelete={() => handleElementDelete(element.id)}
-                  />
-                ))}
+              <div className="space-y-4 overflow-y-auto pr-2">
+                <div className="min-h-[calc(100vh-20rem)] pb-8">
+                  {formData.elements.map((element) => (
+                    <FormElementRenderer
+                      key={element.id}
+                      element={element}
+                      onEdit={() => setSelectedElement(element)}
+                      onDelete={() => handleElementDelete(element.id)}
+                    />
+                  ))}
+                </div>
               </div>
             </Droppable>
           </div>
@@ -142,8 +144,21 @@ export default function FormBuilder() {
         <ElementsPanel />
         <DragOverlay>
           {activeId ? (
-            <div className="bg-white shadow-md rounded-md p-2 opacity-80">
-              {activeId.replace("element-", "")}
+            <div className="w-[300px]">
+              <div className="flex items-center justify-between rounded-md bg-accent/40 p-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <DragOverlayContent
+                    iconName={activeId.replace("element-", "")}
+                    label={activeId
+                      .replace("element-", "")
+                      .split("-")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ")}
+                  />
+                </div>
+              </div>
             </div>
           ) : null}
         </DragOverlay>

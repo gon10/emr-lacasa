@@ -13,17 +13,22 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { FormElement } from "../../types/form-builder";
+import { cn } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RichTextEditor } from "@/components/rich-text-editor";
 
 interface FormElementProps {
   element: FormElement;
   onEdit: () => void;
   onDelete: () => void;
+  isDragging?: boolean;
 }
 
 export function FormElementRenderer({
   element,
   onEdit,
   onDelete,
+  isDragging,
 }: FormElementProps) {
   const renderElement = () => {
     switch (element.type) {
@@ -118,22 +123,72 @@ export function FormElementRenderer({
             </RadioGroup>
           </div>
         );
+      case "number":
+        return (
+          <div className="space-y-2">
+            <Label>{element.label}</Label>
+            <Input
+              type="number"
+              placeholder={`Enter ${element.label.toLowerCase()}`}
+            />
+          </div>
+        );
+      case "url":
+        return (
+          <div className="space-y-2">
+            <Label>{element.label}</Label>
+            <Input type="url" placeholder="https://example.com" />
+          </div>
+        );
+      case "tab-control":
+        return (
+          <div className="space-y-2">
+            <Label>{element.label}</Label>
+            <Tabs defaultValue="tab1">
+              <TabsList>
+                <TabsTrigger value="tab1">Tab 1</TabsTrigger>
+                <TabsTrigger value="tab2">Tab 2</TabsTrigger>
+                <TabsTrigger value="tab3">Tab 3</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+        );
+      case "rich-text":
+        return (
+          <div className="space-y-2">
+            <Label>{element.label}</Label>
+            <RichTextEditor
+              value={element.value || ""}
+              onChange={(value) => {
+                console.log("Rich text changed:", value);
+              }}
+              placeholder={`Enter ${element.label.toLowerCase()}`}
+            />
+          </div>
+        );
       default:
         return null;
     }
   };
 
   return (
-    <div className="relative rounded-md border p-4 hover:bg-accent">
+    <div
+      className={cn(
+        "relative rounded-md border p-4 hover:bg-accent",
+        isDragging && "bg-background shadow-none border-muted"
+      )}
+    >
       {renderElement()}
-      <div className="absolute right-2 top-2 flex gap-1">
-        <Button variant="ghost" size="icon" onClick={onEdit}>
-          <Settings className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon" onClick={onDelete}>
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
+      {!isDragging && (
+        <div className="absolute right-2 top-2 flex gap-1">
+          <Button variant="ghost" size="icon" onClick={onEdit}>
+            <Settings className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={onDelete}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
