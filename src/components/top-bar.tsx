@@ -2,9 +2,37 @@ import { Bell, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { UserNav } from "./user-nav";
 import { auth } from "@/app/auth";
+import { Suspense } from "react";
 
-export async function TopBar() {
+function TopBarSkeleton() {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
+      <div className="space-y-1">
+        <div className="h-4 w-24 bg-muted animate-pulse rounded" />
+        <div className="h-3 w-16 bg-muted animate-pulse rounded" />
+      </div>
+    </div>
+  );
+}
+
+async function UserSection() {
   const session = await auth();
+
+  if (!session?.user) return null;
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="hidden text-right md:block">
+        <p className="text-xs font-medium leading-none">{session.user.name}</p>
+        <p className="text-xs text-muted-foreground">Doctor</p>
+      </div>
+      <UserNav user={session.user} />
+    </div>
+  );
+}
+
+export function TopBar() {
   return (
     <div className="border-b">
       <div className="flex h-16 items-center px-4">
@@ -24,15 +52,9 @@ export async function TopBar() {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="hidden text-right md:block">
-              <p className="text-xs font-medium leading-none">
-                {session?.user?.name}
-              </p>
-              <p className="text-xs text-muted-foreground">Doctor</p>
-            </div>
-            <UserNav user={session?.user} />
-          </div>
+          <Suspense fallback={<TopBarSkeleton />}>
+            <UserSection />
+          </Suspense>
         </div>
       </div>
     </div>

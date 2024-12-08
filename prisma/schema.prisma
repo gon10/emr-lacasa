@@ -30,3 +30,72 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
+
+// Basic HL7 compliant models
+
+model Patient {
+  id                String   @id @default(uuid())
+  mrn               String   @unique // Medical Record Number
+  patientId         String   @unique // HL7 specific identifier
+  firstName         String
+  lastName          String
+  dateOfBirth       DateTime
+  gender            String
+  address          Address[]
+  encounters       Encounter[]
+  observations     Observation[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Encounter {
+  id               String   @id @default(uuid())
+  encounterId      String   @unique // HL7 specific identifier
+  patient          Patient  @relation(fields: [patientId], references: [id])
+  patientId        String
+  type             String   // e.g., inpatient, outpatient, emergency
+  status           String   // e.g., planned, arrived, in-progress, finished
+  startTime        DateTime
+  endTime          DateTime?
+  location         String
+  observations     Observation[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Observation {
+  id               String   @id @default(uuid())
+  patient          Patient  @relation(fields: [patientId], references: [id])
+  patientId        String
+  encounter        Encounter? @relation(fields: [encounterId], references: [id])
+  encounterId      String?
+  code             String   // LOINC or SNOMED code
+  value            String
+  unit             String?
+  observedAt       DateTime
+  status           String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Address {
+  id               String   @id @default(uuid())
+  patient          Patient  @relation(fields: [patientId], references: [id])
+  patientId        String
+  street           String
+  city             String
+  state            String
+  postalCode       String
+  country          String
+  type             String   // e.g., home, work, temporary
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// You'll also need models for:
+// - Orders
+// - Results
+// - Appointments
+// - Clinical Documents
+// - Providers
+// - Organizations
